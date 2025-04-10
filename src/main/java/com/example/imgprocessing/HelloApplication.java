@@ -27,7 +27,7 @@ public class HelloApplication extends Application {
 
         ImageView original = new ImageView();
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("*.png","*.jpg","*.jpeg"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image files", "*.png","*.jpg","*.jpeg"));
         openImg.setOnAction(e -> {
             File file = fileChooser.showOpenDialog(stage);
             Image originalImage = new Image(file.toURI().toString(), 410, 520, false, false);
