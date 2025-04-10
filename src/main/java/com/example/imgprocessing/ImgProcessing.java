@@ -1,25 +1,24 @@
 package com.example.imgprocessing;
 
-import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
+import javafx.scene.image.*;
 import javafx.scene.paint.Color;
 
-import com.example.imgprocessing.HelloApplication;
+import java.awt.image.BufferedImage;
+import java.nio.IntBuffer;
+
 
 public class ImgProcessing {
     public static Image grayscale(Image a) {
         int width = (int) a.getWidth();
         int height = (int) a.getHeight();
 
-        PixelReader pixelReader = a.getPixelReader();
+        PixelReader reader = a.getPixelReader();
         WritableImage result = new WritableImage(width, height);
         PixelWriter writer = result.getPixelWriter();
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                Color color = pixelReader.getColor(x, y);
+                Color color = reader.getColor(x, y);
                 Pixel pixel = new Pixel(
                         (int) (color.getRed() * 255),
                         (int) (color.getGreen() * 255),
@@ -106,4 +105,26 @@ public class ImgProcessing {
 
         return result;
     }
+
+    public static BufferedImage convertToBufferedImage(Image image) {
+        int width = (int) image.getWidth();
+        int height = (int) image.getHeight();
+
+        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        PixelReader reader = image.getPixelReader();
+
+        int[] buffer = new int[width];
+        WritablePixelFormat<IntBuffer> format = WritablePixelFormat.getIntArgbInstance();
+
+        for (int y = 0; y < height; y++) {
+            reader.getPixels(0, y, width, 1, format, buffer, 0, width);
+            for (int x = 0; x < width; x++) {
+                bufferedImage.setRGB(x, y, buffer[x]);
+            }
+        }
+
+        return bufferedImage;
+    }
+
+
 }
