@@ -14,8 +14,11 @@ import javafx.stage.Stage;
 import javafx.geometry.Insets;
 
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+
 
 public class HelloApplication extends Application {
     @Override
@@ -23,16 +26,13 @@ public class HelloApplication extends Application {
         Button openImg = new Button();
         openImg.setText("Open image");
 
-        final Image[] loadedImage = new Image[1];
-
         ImageView original = new ImageView();
         FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image files", "*.png","*.jpg","*.jpeg"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image files","*.png","*.jpg","*.jpeg"));
         openImg.setOnAction(e -> {
             File file = fileChooser.showOpenDialog(stage);
             Image originalImage = new Image(file.toURI().toString(), 410, 520, false, false);
             original.setImage(originalImage);
-            loadedImage[0] = originalImage;
         });
 
         Button save = new Button("Save");
@@ -52,16 +52,36 @@ public class HelloApplication extends Application {
             String selected = (String) comboBox.getValue();
             switch (selected) {
                 case "Grayscale":
-                    resultImg.setImage(ImgProcessing.grayscale(loadedImage[0]));
+                    resultImg.setImage(ImgProcessing.grayscale(original.getImage()));
                     break;
                 case "Inversion":
-                    resultImg.setImage(ImgProcessing.inversion(loadedImage[0]));
+                    resultImg.setImage(ImgProcessing.inversion(original.getImage()));
                     break;
                 case "Blur":
-                    resultImg.setImage(ImgProcessing.blur(loadedImage[0]));
+                    resultImg.setImage(ImgProcessing.blur(original.getImage()));
                     break;
             }
 
+        });
+
+        save.setOnAction(e -> {
+            Image imageToSave = resultImg.getImage();
+            if (imageToSave != null) {
+                FileChooser saveFileChooser = new FileChooser();
+                saveFileChooser.setTitle("Save Image");
+                saveFileChooser.getExtensionFilters().addAll(
+                        new FileChooser.ExtensionFilter("PNG Files", "*.png")
+                );
+                File file = saveFileChooser.showSaveDialog(stage);
+                if (file != null) {
+                    try {
+                        BufferedImage bufferedImage = ImgProcessing.convertToBufferedImage(imageToSave);
+                        ImageIO.write(bufferedImage, "png", file);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
         });
 
         HBox buttons = new HBox(openImg, comboBox, process, save);
